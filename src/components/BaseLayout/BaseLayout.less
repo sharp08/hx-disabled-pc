@@ -1,0 +1,90 @@
+.base-layout-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+
+  .search-container {
+    background: #fff;
+    margin-bottom: 5px;
+    flex-shrink: 0;
+    padding: 5px 10px;
+
+    .custom-form-item {
+      margin-bottom: 10px;
+    }
+  }
+
+  .combination-container {
+    background: #fff;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+
+    .tool-bar-container {
+      padding: 5px 10px;
+      display: flex;
+      justify-content: space-between;
+
+      .left,
+      .right {
+        .custom-button {
+          margin-right: 5px;
+
+          &:last-child {
+            margin-right: 0;
+          }
+
+          .btn-content {
+            display: flex;
+            align-items: center;
+
+            .icon-container {
+              width: 16px;
+              height: 16px;
+              display: flex;
+              overflow: hidden;
+              justify-content: center;
+              margin-right: 10px;
+
+              img {
+                height: 100%;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    .table-container {
+      flex-grow: 1;
+      overflow: hidden;
+    }
+
+    .page-container {
+      padding: 5px 10px;
+    }
+  }
+
+  /*定义滚动条高宽及背景 高宽分别对应横竖滚动条的尺寸*/
+  ::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+    background-color: #f0f0f0;
+  }
+
+  /*定义滚动条轨道 内阴影+圆角*/
+  ::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 1px rgba(0, 0, 0, 0);
+    border-radius: 10px;
+    background-color: #f0f0f0;
+  }
+
+  /*定义滑块 内阴影+圆角*/
+  ::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+    background-color: #97c9e8;
+  }
+
+}
