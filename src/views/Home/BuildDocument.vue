@@ -1,4 +1,5 @@
 <template>
+  <!-- 建档立卡 -->
   <div class="build-document-container">
     <BaseLayout :searchObj="searchObj" :tableObj="tableObj" :toolBarObj="toolBarObj"></BaseLayout>
     <BaseModal
@@ -13,14 +14,10 @@
 </template>
 
 <script>
-import BaseLayout from "@/components/BaseLayout"
-import BaseModal from "@/components/BaseModal"
 import DocumentWin from "./DocumentWin"
 export default {
   name: "BuildDocument",
   components: {
-    BaseLayout,
-    BaseModal,
     DocumentWin
   },
   props: {},

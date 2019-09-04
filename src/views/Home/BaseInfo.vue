@@ -1,7 +1,6 @@
 <template>
   <!-- 基本信息 -->
   <div class="base-info-container">
-    <!-- <BaseLayout></BaseLayout> -->
     <BaseLayout :searchObj="searchObj" :tableObj="tableObj" :toolBarObj="toolBarObj"></BaseLayout>
     <BaseModal
       :modalHeight="winObj.render.modalHeight"
@@ -15,8 +14,6 @@
 </template>
 
 <script>
-import BaseLayout from "@/components/BaseLayout"
-import BaseModal from "@/components/BaseModal"
 import DocumentWin from "./DocumentWin"
 import EmploymentWin from "./EmploymentWin"
 import StudentWin from "./StudentWin"
@@ -24,8 +21,6 @@ import FarmerWin from "./FarmerWin"
 export default {
   name: "BaseInfo",
   components: {
-    BaseLayout,
-    BaseModal,
     DocumentWin,
     EmploymentWin,
     StudentWin,

@@ -45,6 +45,7 @@
 </template>
 
 <script>
+import { mapMutations } from "vuex"
 export default {
   name: "HomePage",
   props: {},
@@ -105,12 +106,15 @@ export default {
     }
   },
   methods: {
+    ...mapMutations(["setUserInfo"]),
     changeTab(val) {
       this.tabsObj.curTab = val
     },
     clickMenu(name) {
       if (name === "logout") {
-        this.$router.replace({ name: "login" })
+        $K.removeSession()
+        this.setUserInfo({})
+        this.$router.replace({ name: "Login" })
       }
     }
   },

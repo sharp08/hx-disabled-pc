@@ -10,14 +10,14 @@
           <h3 class="sub-title">Huanxian Disabled Person's Federation</h3>
         </div>
         <div class="login-container">
-          <Form>
-            <FormItem>
-              <Input placeholder="请输入用户名">
+          <Form :model="model">
+            <FormItem prop="loginName">
+              <Input placeholder="请输入用户名" v-model="model.loginName">
                 <Icon slot="prefix" type="ios-contact" />
               </Input>
             </FormItem>
             <FormItem>
-              <Input placeholder="请输入密码">
+              <Input placeholder="请输入密码" type="password" v-model="model.password">
                 <Icon slot="prefix" type="ios-lock-outline" />
               </Input>
             </FormItem>
@@ -38,11 +38,27 @@
 </template>
 
 <script>
+import { $$login } from "@js/apis.js"
+import { mapMutations } from "vuex"
 export default {
   name: "Login",
+  data() {
+    return {
+      model: {
+        loginName: "",
+        password: ""
+      }
+    }
+  },
+  mounted() {},
   methods: {
+    ...mapMutations(["setUserInfo"]),
     login() {
-      this.$router.push({ name: "BaseInfo" })
+      $$login(this.model).then(({ data }) => {
+        $K.setSession("userInfo", data)
+        this.setUserInfo(data)
+        this.$router.push({ name: "BaseInfo" })
+      })
     }
   }
 }

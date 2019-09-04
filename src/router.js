@@ -10,12 +10,15 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'login',
+      name: 'Login',
       component: Login
     },
     {
       path: '/home',
       component: Home,
+      meta: {
+        needLogin: true
+      },
       children: [
         {
           path: '',

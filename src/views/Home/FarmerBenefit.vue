@@ -19,14 +19,10 @@
 </template>
 
 <script>
-import BaseLayout from "@/components/BaseLayout"
-import BaseModal from "@/components/BaseModal"
 import DocumentWin from "./DocumentWin"
 export default {
   name: "FarmerBenefit",
   components: {
-    BaseLayout,
-    BaseModal,
     DocumentWin
   },
   props: {},
