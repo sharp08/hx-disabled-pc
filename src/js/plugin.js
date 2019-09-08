@@ -6,6 +6,8 @@ let coms = [
   { name: "BaseModal", component: BaseModal },
 ]
 
+
+
 export default {
   install: (Vue, options) => {
     coms.forEach(item => {
@@ -16,6 +18,21 @@ export default {
         Vue.prototype.$Spin.show()
       } else {
         Vue.prototype.$Spin.hide()
+      }
+    }
+    window.tableRender = (key, fn) => {
+      return function (h, params) {
+        let str = fn ? fn(params.row[key]) : params.row[key]
+        return h("span", {
+          style: {
+            overflow: "hidden",
+            "text-overflow": "ellipsis",
+            "white-space": "nowrap"
+          },
+          attrs: {
+            title: str
+          }
+        }, str)
       }
     }
 

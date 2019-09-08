@@ -56,7 +56,7 @@ const common = (o, loading) => {
     }).catch(err => {
       if (err.data) {
         __ERROR__(err.data.message)
-      } else if (ktools.getType(err.response) === "Undefined") {
+      } else if ($K.getType(err.response) === "Undefined") {
         __ERROR__("请求超时")
       } else {
         switch (err.response.status) {

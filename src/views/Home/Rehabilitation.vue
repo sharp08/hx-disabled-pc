@@ -1,6 +1,12 @@
 <template>
+  <!-- 康复需求 -->
   <div class="rehabilitation-container">
-    <BaseLayout :searchObj="searchObj" :tableObj="tableObj" :toolBarObj="toolBarObj">
+    <BaseLayout
+      :searchObj="searchObj"
+      :tableObj="tableObj"
+      :toolBarObj="toolBarObj"
+      ref="BaseLayout"
+    >
       <template v-slot:tool-bar>
         <!-- 占位 -->
         <div></div>
@@ -18,6 +24,8 @@
 </template>
 
 <script>
+import { $$postCureList } from "@js/apis.js"
+import { mapGetters } from "vuex"
 import DocumentWin from "./DocumentWin"
 export default {
   name: "Rehabilitation",
@@ -35,11 +43,27 @@ export default {
         }
       },
       searchObj: {
+        ajax: $$postCureList,
         gutter: 10,
+        default: {
+          name: "",
+          idCard: "",
+          disabledType: "",
+          disabledLevel: "",
+          town: "",
+          cureRequire: "",
+          isService: "",
+          serviceTimeYear: ""
+        },
         model: {
-          name: "张四",
-          gender: 0,
-          time: new Date()
+          name: "",
+          idCard: "",
+          disabledType: "",
+          disabledLevel: "",
+          town: "",
+          cureRequire: "",
+          isService: "",
+          serviceTimeYear: ""
         },
         globalLabelWidth: 60,
         list: [
@@ -53,17 +77,17 @@ export default {
           {
             label: "身份证",
             span: 5,
-            key: "name",
+            key: "idCard",
             type: "input",
             props: { placeholder: "请输入" }
           },
           {
             label: "残疾类型",
             span: 5,
-            key: "gender",
+            key: "disabledType",
             type: "select",
             showKey: "name",
-            ajaxKey: "id",
+            ajaxKey: "name",
             props: {
               placeholder: "请选择",
               list: [
@@ -81,10 +105,10 @@ export default {
           {
             label: "残疾等级",
             span: 5,
-            key: "gender",
+            key: "disabledLevel",
             type: "select",
             showKey: "name",
-            ajaxKey: "id",
+            ajaxKey: "name",
             props: {
               placeholder: "请选择",
               list: [
@@ -102,10 +126,10 @@ export default {
           {
             label: "乡镇",
             span: 5,
-            key: "gender",
+            key: "town",
             type: "select",
             showKey: "name",
-            ajaxKey: "id",
+            ajaxKey: "name",
             props: {
               placeholder: "请选择",
               list: [
@@ -123,10 +147,10 @@ export default {
           {
             label: "康复需求",
             span: 4,
-            key: "gender",
+            key: "cureRequire",
             type: "select",
             showKey: "name",
-            ajaxKey: "id",
+            ajaxKey: "name",
             props: {
               placeholder: "请选择",
               list: [
@@ -144,37 +168,27 @@ export default {
           {
             label: "服务内容",
             span: 5,
-            key: "name",
+            key: "isService",
             type: "input",
             props: { placeholder: "请输入" }
           },
           {
             label: "服务年度",
             span: 5,
-            key: "gender",
-            type: "select",
-            showKey: "name",
-            ajaxKey: "id",
-            props: {
-              placeholder: "请选择",
-              list: [
-                {
-                  id: 0,
-                  name: "车道乡"
-                },
-                {
-                  id: 1,
-                  name: "乡道车"
-                }
-              ]
-            }
+            key: "serviceTimeYear",
+            type: "datepicker",
+            props: { placeholder: "请选择", type: "year" }
           },
           {
             span: 5,
             type: "button",
             list: [
-              { label: "查询", props: { type: "primary" } },
-              { label: "重置" }
+              {
+                type: "defaultSearch"
+              },
+              {
+                type: "defaultReset"
+              }
             ]
           }
         ]
@@ -213,7 +227,7 @@ export default {
             icon: require("../../assets/images/u10.png"),
             props: { type: "primary" },
             clickHandle: () => {
-              alert("右右右")
+              this.$refs["BaseLayout"].refresh()
             }
           }
         ]
@@ -231,90 +245,67 @@ export default {
           {
             title: "姓名",
             align: "center",
-            ellipsis: true,
-            tooltip: true,
             minWidth: 80,
-            key: "name"
+            render: tableRender("name")
           },
           {
             title: "身份证",
-            key: "name",
-            ellipsis: true,
-            tooltip: true,
             minWidth: 80,
-            align: "center"
+            align: "center",
+            render: tableRender("idCard")
           },
           {
             title: "康复需求",
             align: "center",
-            ellipsis: true,
-            tooltip: true,
             minWidth: 100,
-            key: "name"
+            render: tableRender("cureRequire")
           },
           {
             title: "是否服务",
             align: "center",
-            ellipsis: true,
-            tooltip: true,
             minWidth: 100,
-            key: "name"
+            render: tableRender("isService")
           },
           {
             title: "服务内容",
             align: "center",
-            ellipsis: true,
-            tooltip: true,
-            minWidth: 100,
-            key: "name"
+            minWidth: 100
           },
           {
             title: "服务时间",
             align: "center",
-            ellipsis: true,
-            tooltip: true,
             minWidth: 100,
-            key: "name"
+            render: tableRender("serviceTime")
           },
           {
             title: "残疾类别",
             align: "center",
-            ellipsis: true,
-            tooltip: true,
             minWidth: 100,
-            key: "name"
+            render: tableRender("disabledType")
           },
           {
             title: "残疾等级",
             align: "center",
-            ellipsis: true,
-            tooltip: true,
             minWidth: 100,
-            key: "name"
+            render: tableRender("disabledLevel")
           },
           {
             title: "家庭住址",
             align: "center",
-            ellipsis: true,
-            tooltip: true,
             minWidth: 100,
-            key: "name"
+            render: tableRender("address")
           },
           {
             title: "联系电话",
             align: "center",
-            ellipsis: true,
-            tooltip: true,
             minWidth: 100,
-            key: "name"
+            render: tableRender("telephone")
           },
           {
             title: "乡镇",
             align: "center",
-            ellipsis: true,
-            tooltip: true,
             minWidth: 100,
-            key: "name"
+            render: tableRender("town")
           },
           {
             title: "操作",
@@ -500,10 +491,22 @@ export default {
     let c = document.querySelector(".page-container").clientHeight
     this.tableObj.height = a - b - c
   },
+  computed: {
+    ...mapGetters(["dictObj"])
+  },
   watch: {
     "winObj.name": {
       handler(newVal) {
         this.winObj.render = this.winObj.vendorList[newVal]
+      }
+    },
+    dictObj: {
+      immediate: true,
+      handler(newVal) {
+        this.searchObj.list[2].props.list = newVal["DIC_1000"]
+        this.searchObj.list[3].props.list = newVal["DIC_1001"]
+        this.searchObj.list[4].props.list = newVal["DIC_1008"]
+        this.searchObj.list[5].props.list = newVal["DIC_1007"]
       }
     }
   },

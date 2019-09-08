@@ -45,7 +45,8 @@
 </template>
 
 <script>
-import { mapMutations } from "vuex"
+import { $$logout, $$queryDicByTypes } from "@js/apis.js"
+import { mapState, mapMutations } from "vuex"
 export default {
   name: "HomePage",
   props: {},
@@ -88,8 +89,20 @@ export default {
       }
     }
   },
+  created() {
+    if ($K.getSession("dictList") !== null) return
+    $$queryDicByTypes().then(({ data }) => {
+      $K.setSession("dictList", data)
+      this.setDictList(data)
+    })
+  },
   mounted() {},
-  computed: {},
+  computed: {
+    ...mapState({
+      userInfo: state => state.userInfo,
+      dictList: state => state.dictList
+    })
+  },
   watch: {
     $route: {
       immediate: true,
@@ -106,15 +119,19 @@ export default {
     }
   },
   methods: {
-    ...mapMutations(["setUserInfo"]),
+    ...mapMutations(["setUserInfo", "setDictList"]),
     changeTab(val) {
       this.tabsObj.curTab = val
     },
+    // 登出
     clickMenu(name) {
       if (name === "logout") {
-        $K.removeSession()
-        this.setUserInfo({})
-        this.$router.replace({ name: "Login" })
+        let p = { userId: this.userInfo.id }
+        $$logout(p).then(res => {
+          $K.removeSession()
+          this.setUserInfo({})
+          this.$router.replace({ name: "Login" })
+        })
       }
     }
   },

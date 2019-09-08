@@ -24,12 +24,29 @@
                 v-model="searchObj.model[item.key]"
               ></DatePicker>
               <div class="btns-container">
-                <Button
-                  :key="index"
-                  style="margin-right:5px;"
-                  v-bind="subItem.props"
-                  v-for="(subItem,index) in item.list"
-                >{{subItem.label}}</Button>
+                <template v-for="(subItem,index) in item.list">
+                  <Button
+                    :key="index"
+                    @click="search"
+                    style="margin-right:5px;"
+                    type="primary"
+                    v-if="subItem.type==='defaultSearch'"
+                  >查询</Button>
+                  <Button
+                    :key="index"
+                    @click="reset"
+                    style="margin-right:5px;"
+                    type="default"
+                    v-else-if="subItem.type==='defaultReset'"
+                  >重置</Button>
+                  <Button
+                    :key="index"
+                    @click="subItem.click"
+                    style="margin-right:5px;"
+                    v-bind="subItem.props"
+                    v-else
+                  >{{subItem.label}}</Button>
+                </template>
               </div>
             </FormItem>
           </Col>
@@ -73,10 +90,24 @@
         </div>
       </div>
       <div class="table-container">
-        <Table :columns="tableObj.columns" :data="tableObj.data" :height="tableObj.height"></Table>
+        <Table
+          :columns="tableObj.columns"
+          :data="tableObj.data"
+          :height="tableObj.height"
+          :highlight-row="tableObj.highlightRow"
+          @on-current-change="selectRow"
+        ></Table>
       </div>
       <div class="page-container">
-        <Page v-bind="pageObj"></Page>
+        <Page
+          :current="pageObj.model.current"
+          :page-size="pageObj.model.pageSize"
+          :show-sizer="pageObj.showSizer"
+          :show-total="pageObj.showTotal"
+          :total="pageObj.total"
+          @on-change="pageChange"
+          @on-page-size-change="pageSizeChange"
+        ></Page>
       </div>
     </div>
   </div>
@@ -89,7 +120,14 @@ export default {
     searchObj: {
       type: Object,
       default: () => ({
+        ajax: () => {},
+        paramsFmt: p => p,
         gutter: 10,
+        default: {
+          name: "张一",
+          gender: 1,
+          time: new Date()
+        },
         model: {
           name: "张三",
           gender: 1,
@@ -137,8 +175,26 @@ export default {
             span: 6,
             type: "button",
             list: [
-              { label: "查询", props: { type: "primary" } },
-              { label: "重置", props: { type: "success" } }
+              {
+                type: "defaultSearch"
+              },
+              {
+                type: "defaultReset"
+              },
+              {
+                label: "查询",
+                props: { type: "primary" },
+                click: () => {
+                  alert("查询")
+                }
+              },
+              {
+                label: "重置",
+                props: { type: "success" },
+                click: () => {
+                  alert("重置")
+                }
+              }
             ]
           }
         ]
@@ -174,6 +230,7 @@ export default {
       type: Object,
       default: () => ({
         height: 200,
+        highlightRow: true,
         columns: [
           {
             title: "常规",
@@ -247,12 +304,22 @@ export default {
       default: () => ({
         showTotal: true,
         showSizer: true,
-        total: 100
+        total: 100,
+        default: {
+          current: 1,
+          pageSize: 10
+        },
+        model: { current: 1, pageSize: 10 }
       })
     }
   },
   data() {
-    return {}
+    return {
+      curReqParams: {}
+    }
+  },
+  created() {
+    this.search()
   },
   mounted() {
     // let a = document.querySelector(".combination-container").clientHeight
@@ -260,10 +327,59 @@ export default {
     // let c = document.querySelector(".page-container").clientHeight
     // this.tbHeight = a - b - c + 40
   },
-  computed: {},
-  watch: {},
-  methods: {},
-  components: {}
+  computed: {
+    params() {
+      let r = {
+        offset: this.pageObj.model.pageSize * (this.pageObj.model.current - 1),
+        limit: this.pageObj.model.pageSize,
+        query: this.searchObj.model
+      }
+      return r
+    }
+  },
+  watch: {
+    curReqParams: {
+      deep: true,
+      handler(newVal) {
+        let p = this.searchObj.paramsFmt
+          ? this.searchObj.paramsFmt(newVal)
+          : newVal
+        this.searchObj.ajax(p).then(({ data }) => {
+          let { total, list } = data
+          this.pageObj.total = total
+          this.tableObj.data = list
+        })
+      }
+    }
+  },
+  methods: {
+    triggerSearch() {
+      this.curReqParams = $K.deepClone(this.params)
+    },
+    search() {
+      this.pageObj.model.current = 1
+      this.triggerSearch()
+    },
+    refresh() {
+      this.triggerSearch()
+    },
+    reset() {
+      this.searchObj.model = $K.deepClone(this.searchObj.default)
+      this.pageObj.model = $K.deepClone(this.pageObj.default)
+      this.triggerSearch()
+    },
+    selectRow(cur, old) {
+      this.$emit("selectRow", cur)
+    },
+    pageChange(pageNum) {
+      this.pageObj.model.current = pageNum
+      this.triggerSearch()
+    },
+    pageSizeChange(size) {
+      this.pageObj.model.pageSize = size
+      this.triggerSearch()
+    }
+  }
 }
 </script>
 

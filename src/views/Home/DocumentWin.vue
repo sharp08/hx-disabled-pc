@@ -3,10 +3,10 @@
     <div class="top">
       <div class="left">
         <img alt class="icon" src="../../assets/images/u11.png" srcset />
-        <span>残疾人姓名：张三</span>
+        <span>残疾人姓名：{{curRowObj.name}}</span>
       </div>
       <div class="right">
-        <span>身份证：622822198309211232</span>
+        <span>身份证：{{curRowObj.idCard}}</span>
       </div>
     </div>
     <div class="body">
@@ -33,7 +33,7 @@
           </Select>
         </FormItem>
         <FormItem label="致贫原因">
-          <Select>
+          <Select :transfer="true">
             <Option value="0">未脱贫</Option>
             <Option value="1">已脱贫</Option>
           </Select>
@@ -46,7 +46,14 @@
 <script>
 export default {
   name: "DocumentWin",
-  props: {},
+  props: {
+    type: {
+      type: String //  add & edit
+    },
+    curRowObj: {
+      type: Object
+    }
+  },
   data() {
     return {}
   },

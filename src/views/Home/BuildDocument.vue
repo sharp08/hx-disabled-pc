@@ -14,6 +14,8 @@
 </template>
 
 <script>
+import { $$postArchiveList } from "@js/apis.js"
+import { mapGetters } from "vuex"
 import DocumentWin from "./DocumentWin"
 export default {
   name: "BuildDocument",
@@ -31,11 +33,29 @@ export default {
         }
       },
       searchObj: {
+        ajax: $$postArchiveList,
         gutter: 10,
+        default: {
+          name: "",
+          idCard: "",
+          disabledType: "",
+          disabledLevel: "",
+          country: "",
+          householderName: "",
+          outPoorAttr: "",
+          poorAttr: "",
+          poorReason: ""
+        },
         model: {
-          name: "张四",
-          gender: 0,
-          time: new Date()
+          name: "",
+          idCard: "",
+          disabledType: "",
+          disabledLevel: "",
+          country: "",
+          householderName: "",
+          outPoorAttr: "",
+          poorAttr: "",
+          poorReason: ""
         },
         globalLabelWidth: 60,
         list: [
@@ -49,17 +69,17 @@ export default {
           {
             label: "身份证",
             span: 5,
-            key: "name",
+            key: "idCard",
             type: "input",
             props: { placeholder: "请输入" }
           },
           {
             label: "残疾类型",
             span: 5,
-            key: "gender",
+            key: "disabledType",
             type: "select",
             showKey: "name",
-            ajaxKey: "id",
+            ajaxKey: "name",
             props: {
               placeholder: "请选择",
               list: [
@@ -77,10 +97,10 @@ export default {
           {
             label: "残疾等级",
             span: 5,
-            key: "gender",
+            key: "disabledLevel",
             type: "select",
             showKey: "name",
-            ajaxKey: "id",
+            ajaxKey: "name",
             props: {
               placeholder: "请选择",
               list: [
@@ -98,10 +118,10 @@ export default {
           {
             label: "乡镇",
             span: 5,
-            key: "gender",
+            key: "country",
             type: "select",
             showKey: "name",
-            ajaxKey: "id",
+            ajaxKey: "name",
             props: {
               placeholder: "请选择",
               list: [
@@ -119,17 +139,17 @@ export default {
           {
             label: "户主",
             span: 4,
-            key: "name",
+            key: "householderName",
             type: "input",
             props: { placeholder: "请输入" }
           },
           {
             label: "脱贫属性",
             span: 5,
-            key: "gender",
+            key: "outPoorAttr",
             type: "select",
             showKey: "name",
-            ajaxKey: "id",
+            ajaxKey: "name",
             props: {
               placeholder: "请选择",
               list: [
@@ -147,10 +167,10 @@ export default {
           {
             label: "贫困属性",
             span: 5,
-            key: "gender",
+            key: "poorAttr",
             type: "select",
             showKey: "name",
-            ajaxKey: "id",
+            ajaxKey: "name",
             props: {
               placeholder: "请选择",
               list: [
@@ -168,10 +188,10 @@ export default {
           {
             label: "致贫原因",
             span: 5,
-            key: "gender",
+            key: "poorReason",
             type: "select",
             showKey: "name",
-            ajaxKey: "id",
+            ajaxKey: "name",
             props: {
               placeholder: "请选择",
               list: [
@@ -190,8 +210,12 @@ export default {
             span: 5,
             type: "button",
             list: [
-              { label: "查询", props: { type: "primary" } },
-              { label: "重置" }
+              {
+                type: "defaultSearch"
+              },
+              {
+                type: "defaultReset"
+              }
             ]
           }
         ]
@@ -241,99 +265,81 @@ export default {
           {
             title: "户号",
             align: "center",
-            ellipsis: true,
-            tooltip: true,
             fixed: "left",
             minWidth: 80,
-            key: "name"
+            render: tableRender("householderId")
           },
           {
             title: "身份证",
-            key: "name",
-            ellipsis: true,
-            tooltip: true,
             minWidth: 80,
-            align: "center"
+            align: "center",
+            render: tableRender("idCard")
           },
           {
             title: "姓名",
             align: "center",
-            ellipsis: true,
-            tooltip: true,
             minWidth: 100,
-            key: "name"
+            render: tableRender("name")
           },
           {
             title: "户主姓名",
             align: "center",
-            ellipsis: true,
-            tooltip: true,
             minWidth: 100,
-            key: "name"
+            render: tableRender("householderName")
           },
           {
             title: "户主身份证",
             align: "center",
-            ellipsis: true,
-            tooltip: true,
             minWidth: 100,
-            key: "name"
+            render: tableRender("householderIdCard")
           },
           {
             title: "脱贫属性",
             align: "center",
-            ellipsis: true,
-            tooltip: true,
             minWidth: 100,
-            key: "name"
+            render: tableRender("outPoorAttr")
+          },
+          {
+            title: "贫困属性",
+            align: "center",
+            minWidth: 100,
+            render: tableRender("poorAttr")
           },
           {
             title: "致贫原因",
             align: "center",
-            ellipsis: true,
-            tooltip: true,
             minWidth: 100,
-            key: "name"
+            render: tableRender("poorReason")
           },
           {
             title: "残疾类别",
             align: "center",
-            ellipsis: true,
-            tooltip: true,
             minWidth: 100,
-            key: "name"
+            render: tableRender("disabledType")
           },
           {
             title: "残疾等级",
             align: "center",
-            ellipsis: true,
-            tooltip: true,
             minWidth: 100,
-            key: "name"
+            render: tableRender("disabledLevel")
           },
           {
             title: "家庭住址",
             align: "center",
-            ellipsis: true,
-            tooltip: true,
             minWidth: 100,
-            key: "name"
+            render: tableRender("address")
           },
           {
             title: "联系电话",
             align: "center",
-            ellipsis: true,
-            tooltip: true,
             minWidth: 100,
-            key: "name"
+            render: tableRender("telephone")
           },
           {
             title: "乡镇",
             align: "center",
-            ellipsis: true,
-            tooltip: true,
             minWidth: 100,
-            key: "name"
+            render: tableRender("country")
           },
           {
             title: "操作",
@@ -378,138 +384,7 @@ export default {
             }
           }
         ],
-        data: [
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          }
-        ]
+        data: []
       }
     }
   },
@@ -519,10 +394,24 @@ export default {
     let c = document.querySelector(".page-container").clientHeight
     this.tableObj.height = a - b - c
   },
+  computed: {
+    ...mapGetters(["dictObj"])
+  },
   watch: {
     "winObj.name": {
       handler(newVal) {
         this.winObj.render = this.winObj.vendorList[newVal]
+      }
+    },
+    dictObj: {
+      immediate: true,
+      handler(newVal) {
+        this.searchObj.list[2].props.list = newVal["DIC_1000"]
+        this.searchObj.list[3].props.list = newVal["DIC_1001"]
+        this.searchObj.list[4].props.list = newVal["DIC_1008"]
+        this.searchObj.list[6].props.list = newVal["DIC_1003"]
+        this.searchObj.list[7].props.list = newVal["DIC_1004"]
+        this.searchObj.list[8].props.list = newVal["DIC_1005"]
       }
     }
   },

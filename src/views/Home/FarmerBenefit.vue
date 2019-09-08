@@ -1,4 +1,5 @@
 <template>
+  <!-- 惠农补助 -->
   <div class="farmer-benefit-container">
     <BaseLayout :searchObj="searchObj" :tableObj="tableObj" :toolBarObj="toolBarObj">
       <template v-slot:tool-bar>
@@ -19,6 +20,8 @@
 </template>
 
 <script>
+import { $$postAllowanceList } from "@js/apis.js"
+import { mapGetters } from "vuex"
 import DocumentWin from "./DocumentWin"
 export default {
   name: "FarmerBenefit",
@@ -36,35 +39,53 @@ export default {
         }
       },
       searchObj: {
+        ajax: $$postAllowanceList,
+        paramsFmt: p => {
+          let r = $K.deepClone(p)
+          r.query.subsidyYear = $K.fmtDate(p.query.subsidyYear, "yyyy")
+          return r
+        },
         gutter: 10,
+        default: {
+          name: "",
+          idCard: "",
+          disabledType: "",
+          disabledLevel: "",
+          town: "",
+          subsidyItem: "",
+          subsidyYear: ""
+        },
         model: {
-          name: "张四",
-          gender: 0,
-          time: new Date()
+          name: "",
+          idCard: "",
+          disabledType: "",
+          disabledLevel: "",
+          town: "",
+          subsidyItem: "",
+          subsidyYear: ""
         },
         globalLabelWidth: 60,
         list: [
           {
             label: "姓名",
             span: 4,
-            key: "name",
             type: "input",
             props: { placeholder: "请输入" }
           },
           {
             label: "身份证",
             span: 5,
-            key: "name",
+            key: "icCard",
             type: "input",
             props: { placeholder: "请输入" }
           },
           {
             label: "残疾类型",
             span: 5,
-            key: "gender",
+            key: "disabledType",
             type: "select",
             showKey: "name",
-            ajaxKey: "id",
+            ajaxKey: "name",
             props: {
               placeholder: "请选择",
               list: [
@@ -82,10 +103,10 @@ export default {
           {
             label: "残疾等级",
             span: 5,
-            key: "gender",
+            key: "disabledLevel",
             type: "select",
             showKey: "name",
-            ajaxKey: "id",
+            ajaxKey: "name",
             props: {
               placeholder: "请选择",
               list: [
@@ -103,10 +124,10 @@ export default {
           {
             label: "乡镇",
             span: 5,
-            key: "gender",
+            key: "town",
             type: "select",
             showKey: "name",
-            ajaxKey: "id",
+            ajaxKey: "name",
             props: {
               placeholder: "请选择",
               list: [
@@ -124,37 +145,27 @@ export default {
           {
             label: "补助项目",
             span: 4,
-            key: "name",
+            key: "subsidyItem",
             type: "input",
             props: { placeholder: "请输入" }
           },
           {
             label: "年度",
             span: 5,
-            key: "gender",
-            type: "select",
-            showKey: "name",
-            ajaxKey: "id",
-            props: {
-              placeholder: "请选择",
-              list: [
-                {
-                  id: 0,
-                  name: "车道乡"
-                },
-                {
-                  id: 1,
-                  name: "乡道车"
-                }
-              ]
-            }
+            key: "subsidyYear",
+            type: "datepicker",
+            props: { placeholder: "请选择", type: "year" }
           },
           {
             span: 5,
             type: "button",
             list: [
-              { label: "查询", props: { type: "primary" } },
-              { label: "重置" }
+              {
+                type: "defaultSearch"
+              },
+              {
+                type: "defaultReset"
+              }
             ]
           }
         ]
@@ -204,107 +215,81 @@ export default {
           {
             title: "户号",
             align: "center",
-            ellipsis: true,
-            tooltip: true,
             fixed: "left",
             minWidth: 80,
-            key: "name"
+            render: tableRender("householderId")
           },
           {
             title: "身份证",
-            key: "name",
-            ellipsis: true,
-            tooltip: true,
             minWidth: 80,
-            align: "center"
+            align: "center",
+            render: tableRender("idCard")
           },
           {
             title: "项目",
             align: "center",
-            ellipsis: true,
-            tooltip: true,
             minWidth: 100,
-            key: "name"
+            render: tableRender("subsidyItem")
           },
           {
             title: "补助标准",
             align: "center",
-            ellipsis: true,
-            tooltip: true,
             minWidth: 100,
-            key: "name"
+            render: tableRender("subsidyStandard")
           },
           {
             title: "享受年度",
             align: "center",
-            ellipsis: true,
-            tooltip: true,
             minWidth: 100,
-            key: "name"
+            render: tableRender("subsidyYear")
           },
           {
             title: "发放时间",
             align: "center",
-            ellipsis: true,
-            tooltip: true,
             minWidth: 100,
-            key: "name"
+            render: tableRender("subsidyTime")
           },
           {
             title: "一折通姓名",
             align: "center",
-            ellipsis: true,
-            tooltip: true,
             minWidth: 100,
-            key: "name"
+            render: tableRender("cardName")
           },
           {
             title: "一折通账号",
             align: "center",
-            ellipsis: true,
-            tooltip: true,
             minWidth: 100,
-            key: "name"
+            render: tableRender("cardNumber")
           },
           {
             title: "残疾类别",
             align: "center",
-            ellipsis: true,
-            tooltip: true,
             minWidth: 100,
-            key: "name"
+            render: tableRender("disabledType")
           },
           {
             title: "残疾等级",
             align: "center",
-            ellipsis: true,
-            tooltip: true,
             minWidth: 100,
-            key: "name"
+            render: tableRender("disabledLevel")
           },
           {
             title: "家庭住址",
             align: "center",
-            ellipsis: true,
-            tooltip: true,
             minWidth: 100,
-            key: "name"
+            render: tableRender("address")
           },
           {
             title: "联系电话",
             align: "center",
-            ellipsis: true,
-            tooltip: true,
             minWidth: 100,
-            key: "name"
+            render: tableRender("telephone")
           },
           {
             title: "乡镇",
             align: "center",
-            ellipsis: true,
-            tooltip: true,
             minWidth: 100,
-            key: "name"
+            render: tableRender("town")
           },
           {
             title: "操作",
@@ -349,138 +334,7 @@ export default {
             }
           }
         ],
-        data: [
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          }
-        ]
+        data: []
       }
     }
   },
@@ -490,10 +344,21 @@ export default {
     let c = document.querySelector(".page-container").clientHeight
     this.tableObj.height = a - b - c
   },
+  computed: {
+    ...mapGetters(["dictObj"])
+  },
   watch: {
     "winObj.name": {
       handler(newVal) {
         this.winObj.render = this.winObj.vendorList[newVal]
+      }
+    },
+    dictObj: {
+      immediate: true,
+      handler(newVal) {
+        this.searchObj.list[2].props.list = newVal["DIC_1000"]
+        this.searchObj.list[3].props.list = newVal["DIC_1001"]
+        this.searchObj.list[4].props.list = newVal["DIC_1008"]
       }
     }
   },

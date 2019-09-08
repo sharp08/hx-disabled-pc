@@ -18,9 +18,11 @@
 </template>
 
 <script>
+import { $$postStudentList } from "@js/apis.js"
+import { mapGetters } from "vuex"
 import DocumentWin from "./DocumentWin"
 export default {
-  name: "FarmerBenefit",
+  name: "DisabledStudent",
   components: {
     DocumentWin
   },
@@ -35,11 +37,25 @@ export default {
         }
       },
       searchObj: {
+        ajax: $$postStudentList,
         gutter: 10,
+        default: {
+          name: "",
+          idCard: "",
+          disabledType: "",
+          disabledLevel: "",
+          town: "",
+          eduLevel: "",
+          eduDrop: ""
+        },
         model: {
-          name: "张四",
-          gender: 0,
-          time: new Date()
+          name: "",
+          idCard: "",
+          disabledType: "",
+          disabledLevel: "",
+          town: "",
+          eduLevel: "",
+          eduDrop: ""
         },
         globalLabelWidth: 60,
         list: [
@@ -53,17 +69,17 @@ export default {
           {
             label: "身份证",
             span: 5,
-            key: "name",
+            key: "idCard",
             type: "input",
             props: { placeholder: "请输入" }
           },
           {
             label: "残疾类型",
             span: 5,
-            key: "gender",
+            key: "disabledType",
             type: "select",
             showKey: "name",
-            ajaxKey: "id",
+            ajaxKey: "name",
             props: {
               placeholder: "请选择",
               list: [
@@ -81,10 +97,10 @@ export default {
           {
             label: "残疾等级",
             span: 5,
-            key: "gender",
+            key: "disabledLevel",
             type: "select",
             showKey: "name",
-            ajaxKey: "id",
+            ajaxKey: "name",
             props: {
               placeholder: "请选择",
               list: [
@@ -102,10 +118,10 @@ export default {
           {
             label: "乡镇",
             span: 5,
-            key: "gender",
+            key: "town",
             type: "select",
             showKey: "name",
-            ajaxKey: "id",
+            ajaxKey: "name",
             props: {
               placeholder: "请选择",
               list: [
@@ -123,14 +139,14 @@ export default {
           {
             label: "教育阶段",
             span: 4,
-            key: "name",
+            key: "eduLevel",
             type: "input",
             props: { placeholder: "请输入" }
           },
           {
             label: "是否辍学",
             span: 5,
-            key: "gender",
+            key: "eduDrop",
             type: "select",
             showKey: "name",
             ajaxKey: "id",
@@ -139,11 +155,11 @@ export default {
               list: [
                 {
                   id: 0,
-                  name: "车道乡"
+                  name: "是"
                 },
                 {
                   id: 1,
-                  name: "乡道车"
+                  name: "否"
                 }
               ]
             }
@@ -152,8 +168,12 @@ export default {
             span: 5,
             type: "button",
             list: [
-              { label: "查询", props: { type: "primary" } },
-              { label: "重置" }
+              {
+                type: "defaultSearch"
+              },
+              {
+                type: "defaultReset"
+              }
             ]
           }
         ]
@@ -203,107 +223,81 @@ export default {
           {
             title: "姓名",
             align: "center",
-            ellipsis: true,
-            tooltip: true,
             fixed: "left",
             minWidth: 80,
-            key: "name"
+            render: tableRender("name")
           },
           {
             title: "身份证",
             key: "name",
-            ellipsis: true,
-            tooltip: true,
             minWidth: 80,
-            align: "center"
+            render: tableRender("idCard")
           },
           {
             title: "教育阶段",
             align: "center",
-            ellipsis: true,
-            tooltip: true,
             minWidth: 100,
-            key: "name"
+            render: tableRender("eduLevel")
           },
           {
             title: "就读学校",
             align: "center",
-            ellipsis: true,
-            tooltip: true,
             minWidth: 100,
-            key: "name"
+            render: tableRender("edcSchool")
           },
           {
             title: "就读年级",
             align: "center",
-            ellipsis: true,
-            tooltip: true,
             minWidth: 100,
-            key: "name"
+            render: tableRender("eduAge")
           },
           {
             title: "就读专业",
             align: "center",
-            ellipsis: true,
-            tooltip: true,
             minWidth: 100,
-            key: "name"
+            render: tableRender("eduClass")
           },
           {
             title: "是否辍学",
             align: "center",
-            ellipsis: true,
-            tooltip: true,
             minWidth: 100,
-            key: "name"
+            render: tableRender("eduDrop")
           },
           {
             title: "辍学原因",
             align: "center",
-            ellipsis: true,
-            tooltip: true,
             minWidth: 100,
-            key: "name"
+            render: tableRender("eduDropReason")
           },
           {
             title: "残疾类别",
             align: "center",
-            ellipsis: true,
-            tooltip: true,
             minWidth: 100,
-            key: "name"
+            render: tableRender("disabledType")
           },
           {
             title: "残疾等级",
             align: "center",
-            ellipsis: true,
-            tooltip: true,
             minWidth: 100,
-            key: "name"
+            render: tableRender("disabledLevel")
           },
           {
             title: "家庭住址",
             align: "center",
-            ellipsis: true,
-            tooltip: true,
             minWidth: 100,
-            key: "name"
+            render: tableRender("address")
           },
           {
             title: "联系电话",
             align: "center",
-            ellipsis: true,
-            tooltip: true,
             minWidth: 100,
-            key: "name"
+            render: tableRender("telephone")
           },
           {
             title: "乡镇",
             align: "center",
-            ellipsis: true,
-            tooltip: true,
             minWidth: 100,
-            key: "name"
+            render: tableRender("town")
           },
           {
             title: "操作",
@@ -348,138 +342,7 @@ export default {
             }
           }
         ],
-        data: [
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          },
-          {
-            name: "文本文本",
-            input: "123123",
-            select: "0"
-          }
-        ]
+        data: []
       }
     }
   },
@@ -489,10 +352,21 @@ export default {
     let c = document.querySelector(".page-container").clientHeight
     this.tableObj.height = a - b - c
   },
+  computed: {
+    ...mapGetters(["dictObj"])
+  },
   watch: {
     "winObj.name": {
       handler(newVal) {
         this.winObj.render = this.winObj.vendorList[newVal]
+      }
+    },
+    dictObj: {
+      immediate: true,
+      handler(newVal) {
+        this.searchObj.list[2].props.list = newVal["DIC_1000"]
+        this.searchObj.list[3].props.list = newVal["DIC_1001"]
+        this.searchObj.list[4].props.list = newVal["DIC_1008"]
       }
     }
   },
