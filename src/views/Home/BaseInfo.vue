@@ -11,6 +11,7 @@
     <BaseModal
       :modalHeight="winObj.render.modalHeight"
       :modalWidth="winObj.render.modalWidth"
+      :showConfirm="winObj.name==='InfoWin'||winObj.name==='DocumentWin'"
       :title="winObj.render.title"
       @confirm="confirm(winObj.name)"
       ref="editWin"
@@ -28,12 +29,14 @@
 
 <script>
 import {
-  $$postInfoList,
-  $$getInfoDetail,
-  $$postAddInfo,
-  $$postUpdateInfo,
-  $$getDelInfo,
-  $$getArchiveDetail
+  $$postInfoList, //  查询基本信息列表
+  $$getInfoDetail, //  获取基本信息详情
+  $$postAddInfo, //  新增基本信息
+  $$postUpdateInfo, //  修改基本信息
+  $$getDelInfo, //  删除基本信息
+  $$getArchiveDetail, //  查询档案详情
+  $$postArchiveAdd, //  新增档案
+  $$postArchiveUpdate //  修改档案
 } from "@js/apis.js"
 import { mapState, mapGetters, mapMutations } from "vuex"
 import InfoWin from "./InfoWin"
@@ -260,6 +263,7 @@ export default {
                 $$getArchiveDetail(this.tableObj.curRow.idCard).then(
                   ({ data }) => {
                     if (data) {
+                      this.setDocumentInfo(data)
                       this.winObj.name = "DocumentWin"
                       this.winObj.type = "edit"
                       this.$refs["editWin"].showModal = true
@@ -575,13 +579,14 @@ export default {
     }
   },
   methods: {
-    ...mapMutations(["setBaseInfo"]),
+    ...mapMutations(["setBaseInfo", "setDocumentInfo"]),
     // 选中表格一行
     selectRow(cur) {
       console.log(cur)
       this.tableObj.curRow = cur
     },
     confirm(compName) {
+      // 基本信息窗口
       if (compName === "InfoWin") {
         let pass = this.$refs["abc"].valid()
         if (!pass) return
@@ -595,6 +600,19 @@ export default {
           $$postUpdateInfo(p).then(res => {
             this.$refs["editWin"].showModal = false
             this.$refs["BaseLayout"].refresh()
+          })
+        }
+      }
+      // 档案窗口
+      else if (compName === "DocumentWin") {
+        let p = this.$refs["abc"].modelFmt
+        if (this.winObj.type === "add") {
+          $$postArchiveAdd(p).then(res => {
+            this.$refs["editWin"].showModal = false
+          })
+        } else if (this.winObj.type === "edit") {
+          $$postArchiveUpdate(p).then(res => {
+            this.$refs["editWin"].showModal = false
           })
         }
       }

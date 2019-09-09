@@ -8,6 +8,7 @@ export default new Vuex.Store({
     userInfo: $K.getSession("userInfo"),
     dictList: $K.getSession("dictList"),
     baseInfo: {},
+    documentInfo: {},
   },
   getters: {
     dictObj(state) {
@@ -29,6 +30,9 @@ export default new Vuex.Store({
     },
     setBaseInfo(state, payload) {
       state.baseInfo = payload
+    },
+    setDocumentInfo(state, payload) {
+      state.documentInfo = payload
     },
   },
   actions: {

@@ -10,32 +10,41 @@
       </div>
     </div>
     <div class="body">
-      <Form :label-width="100">
+      <Form :label-width="100" :model="model">
         <FormItem label="户号">
-          <Input placeholder="请输入"></Input>
+          <Input placeholder="请输入" v-model="model.householderId"></Input>
         </FormItem>
         <FormItem label="身份证">
-          <Input placeholder="请输入"></Input>
+          <Input placeholder="请输入" v-model="model.householderIdCard"></Input>
         </FormItem>
         <FormItem label="户主姓名">
-          <Input placeholder="请输入"></Input>
+          <Input placeholder="请输入" v-model="model.householderName"></Input>
         </FormItem>
         <FormItem label="脱贫属性">
-          <Select>
-            <Option value="0">未脱贫</Option>
-            <Option value="1">已脱贫</Option>
+          <Select clearable transfer v-model="model.outPoorAttr">
+            <Option
+              :key="idx"
+              :value="item.name"
+              v-for="(item,idx) in dictObj['DIC_1003']"
+            >{{item.name}}</Option>
           </Select>
         </FormItem>
         <FormItem label="贫困户属性">
-          <Select>
-            <Option value="0">未脱贫</Option>
-            <Option value="1">已脱贫</Option>
+          <Select clearable transfer v-model="model.poorAttr">
+            <Option
+              :key="idx"
+              :value="item.name"
+              v-for="(item,idx) in dictObj['DIC_1004']"
+            >{{item.name}}</Option>
           </Select>
         </FormItem>
         <FormItem label="致贫原因">
-          <Select :transfer="true">
-            <Option value="0">未脱贫</Option>
-            <Option value="1">已脱贫</Option>
+          <Select clearable transfer v-model="model.poorReason">
+            <Option
+              :key="idx"
+              :value="item.name"
+              v-for="(item,idx) in dictObj['DIC_1005']"
+            >{{item.name}}</Option>
           </Select>
         </FormItem>
       </Form>
@@ -44,6 +53,7 @@
 </template>
 
 <script>
+import { mapState, mapGetters } from "vuex"
 export default {
   name: "DocumentWin",
   props: {
@@ -55,11 +65,38 @@ export default {
     }
   },
   data() {
-    return {}
+    return {
+      model: {
+        householderId: "",
+        householderIdCard: "",
+        householderName: "",
+        outPoorAttr: "",
+        poorAttr: "",
+        poorReason: ""
+      }
+    }
   },
   mounted() {},
-  computed: {},
-  watch: {},
+  computed: {
+    ...mapState({
+      documentInfo: state => state.documentInfo
+    }),
+    ...mapGetters(["dictObj"]),
+    modelFmt() {
+      let r = this.model
+      r.idCard = this.curRowObj.idCard
+      return r
+    }
+  },
+  watch: {
+    documentInfo: {
+      immediate: true,
+      handler(newVal) {
+        if (this.type === "add") return
+        this.model = newVal
+      }
+    }
+  },
   methods: {},
   components: {}
 }

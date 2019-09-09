@@ -1,12 +1,13 @@
 <template>
+  <!-- 残疾学生 -->
   <div class="student-win">
     <div class="top">
       <div class="left">
         <img alt class="icon" src="../../assets/images/u11.png" srcset />
-        <span>残疾人姓名：张三</span>
+        <span>残疾人姓名：{{curRowObj.name}}</span>
       </div>
       <div class="right">
-        <span>身份证：622822198309211232</span>
+        <span>身份证：{{curRowObj.idCard}}</span>
         <Button
           @click="openWin('add')"
           class="custom-add"
@@ -23,79 +24,116 @@
       :modalHeight="winObj.height"
       :modalWidth="winObj.width"
       :title="winObj.render.title"
+      @confirm="confirmHandle('form')"
       class="st-win"
       ref="win"
     >
       <div class="content">
-        <Form :label-width="100">
+        <Form :label-width="100" :model="winObj.model">
           <FormItem label="教育阶段">
-            <Select>
-              <Option value="0">种植技术</Option>
-              <Option value="1">养殖技术</Option>
+            <Select clearable transfer v-model="winObj.model.eduLevel">
+              <Option
+                :key="idx"
+                :value="item.name"
+                v-for="(item,idx) in dictObj['DIC_1006']"
+              >{{item.name}}</Option>
             </Select>
           </FormItem>
           <FormItem label="学校">
-            <Input></Input>
+            <Input clearable placeholder="请输入" v-model="winObj.model.eduSchool"></Input>
           </FormItem>
           <FormItem label="年级">
-            <Input></Input>
+            <Input clearable placeholder="请输入" v-model="winObj.model.eduAge"></Input>
           </FormItem>
           <FormItem label="专业">
-            <Input></Input>
+            <Input clearable placeholder="请输入" v-model="winObj.model.eduClass"></Input>
           </FormItem>
-          <FormItem label="辍学">
-            <RadioGroup>
-              <Radio label="是"></Radio>
-              <Radio label="否"></Radio>
+          <FormItem label="是否辍学">
+            <RadioGroup v-model="winObj.model.eduDrop">
+              <Radio label="是">是</Radio>
+              <Radio label="否">否</Radio>
             </RadioGroup>
           </FormItem>
           <FormItem label="辍学原因">
-            <Input type="textarea"></Input>
+            <Input placeholder="请输入" type="textarea" v-model="winObj.model.eduDropReason"></Input>
           </FormItem>
         </Form>
       </div>
     </BaseModal>
+    <!-- 确认窗口 -->
+    <BaseModal
+      :content="confirmWinObj.render.content"
+      :title="confirmWinObj.render.title"
+      @confirm="confirmHandle('confirm')"
+      ref="confirmWin"
+    ></BaseModal>
   </div>
 </template>
 
 <script>
+import { mapState, mapGetters } from "vuex"
+import {
+  $$getStudentWinList, //  查询窗口列表
+  $$postStudentWinAdd, // 新增
+  $$getStudentWinDetail, // 查询
+  $$postStudentWinUpdate, //  编辑
+  $$getStudentWinDel //  删除
+} from "@js/apis.js"
 import BaseModal from "@/components/BaseModal"
 export default {
   name: "StudentWin",
-  props: {},
+  props: {
+    type: {
+      type: String //  add & edit
+    },
+    curRowObj: {
+      type: Object
+    }
+  },
   data() {
     return {
+      confirmWinObj: {
+        type: "",
+        render: {},
+        vendorList: {
+          eduDel: {
+            title: "操作确认",
+            content: "是否要删除该项数据？"
+          }
+        }
+      },
+      curRow: {},
       tableHeight: 350,
       columns: [
         {
           title: "教育阶段",
           align: "center",
-          key: "name"
+          render: tableRender("eduLevel")
         },
         {
           title: "就读学校",
           align: "center",
-          key: "name"
+          render: tableRender("eduSchool")
         },
         {
           title: "就读年级",
           align: "center",
-          key: "name"
+          render: tableRender("eduAge")
         },
         {
           title: "就读专业",
           align: "center",
-          key: "name"
+          render: tableRender("eduClass")
         },
         {
           title: "是否辍学",
           align: "center",
-          key: "name"
+          render: tableRender("eduDrop")
         },
         {
           title: "辍学原因",
           align: "center",
-          key: "name"
+          render: tableRender("eduDropReason")
         },
         {
           title: "按钮",
@@ -115,8 +153,11 @@ export default {
                   },
                   on: {
                     click: () => {
-                      this.winObj.type = "edit"
-                      this.$refs["win"].showModal = true
+                      $$getStudentWinDetail(params.row.id).then(({ data }) => {
+                        this.winObj.model = data
+                        this.winObj.type = "edit"
+                        this.$refs["win"].showModal = true
+                      })
                     }
                   }
                 },
@@ -131,7 +172,9 @@ export default {
                   },
                   on: {
                     click: () => {
-                      alert(123)
+                      this.curRow = params.row
+                      this.confirmWinObj.type = "eduDel"
+                      this.$refs["confirmWin"].showModal = true
                     }
                   }
                 },
@@ -152,6 +195,14 @@ export default {
         type: "",
         height: 500,
         width: 500,
+        model: {
+          eduLevel: "",
+          eduSchool: "",
+          eduAge: "",
+          eduClass: "",
+          eduDrop: "",
+          eduDropReason: ""
+        },
         render: {},
         vendorList: {
           add: {
@@ -164,20 +215,66 @@ export default {
       }
     }
   },
+  created() {
+    this.queryList()
+  },
   mounted() {},
-  computed: {},
+  computed: {
+    ...mapGetters(["dictObj"])
+  },
   watch: {
     "winObj.type": {
       handler(newVal) {
         this.winObj.render = this.winObj.vendorList[newVal]
       }
+    },
+    "confirmWinObj.type": {
+      handler(newVal) {
+        this.confirmWinObj.render = this.confirmWinObj.vendorList[newVal]
+      }
     }
   },
   methods: {
+    queryList() {
+      let p = {
+        idCard: this.curRowObj.idCard
+      }
+      $$getStudentWinList(p).then(({ data }) => {
+        this.data = data
+      })
+    },
     openWin(type) {
       if (type === "add") {
+        this.winObj.model = {}
         this.winObj.type = "add"
         this.$refs["win"].showModal = true
+      }
+    },
+    // 窗口确认
+    confirmHandle(type) {
+      // 表单窗口
+      if (type === "form") {
+        let p = this.winObj.model        
+        p.idCard = this.curRowObj.idCard
+        p.name = this.curRowObj.name
+        if (this.winObj.type === "add") {
+          $$postStudentWinAdd(p).then(res => {
+            this.$refs["win"].showModal = false
+            this.queryList()
+          })
+        } else if (this.winObj.type === "edit") {
+          $$postStudentWinUpdate(p).then(res => {
+            this.$refs["win"].showModal = false
+            this.queryList()
+          })
+        }
+      }
+      // 二次确认窗口
+      else if (type === "confirm") {
+        $$getStudentWinDel(this.curRow.id).then(res => {
+          this.$refs["confirmWin"].showModal = false
+          this.queryList()
+        })
       }
     }
   },
