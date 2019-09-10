@@ -1,5 +1,5 @@
 <template>
-  <!-- 惠农补助 -->
+  <!-- 惠农补助窗口 -->
   <div class="farmer-win">
     <div class="top">
       <div class="left">
@@ -20,6 +20,7 @@
     <div class="body">
       <Table :columns="columns" :data="data" :height="tableHeight"></Table>
     </div>
+    <!-- 单一补助项窗口 -->
     <BaseModal
       :modalHeight="winObj.height"
       :modalWidth="winObj.width"

@@ -1,21 +1,40 @@
 <template>
   <!-- 建档立卡 -->
   <div class="build-document-container">
-    <BaseLayout :searchObj="searchObj" :tableObj="tableObj" :toolBarObj="toolBarObj"></BaseLayout>
+    <BaseLayout
+      :searchObj="searchObj"
+      :tableObj="tableObj"
+      :toolBarObj="toolBarObj"
+      @selectRow="selectRow"
+      ref="BaseLayout"
+    ></BaseLayout>
     <BaseModal
       :modalHeight="winObj.render.modalHeight"
       :modalWidth="winObj.render.modalWidth"
       :title="winObj.render.title"
+      @confirm="confirmHandle(winObj.name)"
       ref="editWin"
     >
-      <component :is="winObj.name"></component>
+      <component :curRowObj="tableObj.curRow" :is="winObj.name" :type="winObj.type" ref="abc"></component>
     </BaseModal>
+    <!-- 操作确认 -->
+    <BaseModal
+      :content="confirmWinObj.render.content"
+      :title="confirmWinObj.render.title"
+      @confirm="confirmWin"
+      ref="confirmWin"
+    ></BaseModal>
   </div>
 </template>
 
 <script>
-import { $$postArchiveList } from "@js/apis.js"
-import { mapGetters } from "vuex"
+import {
+  $$postArchiveList, //  查询档案列表
+  $$getArchiveDetail, //  查询档案详情
+  $$postArchiveUpdate, //  修改档案
+  $$getDelDoc //  删除档案
+} from "@js/apis.js"
+import { mapGetters, mapMutations } from "vuex"
 import DocumentWin from "./DocumentWin"
 export default {
   name: "BuildDocument",
@@ -25,8 +44,19 @@ export default {
   props: {},
   data() {
     return {
+      confirmWinObj: {
+        type: "",
+        render: {},
+        vendorList: {
+          documentDel: {
+            title: "操作确认",
+            content: "是否要删除当前档案？"
+          }
+        }
+      },
       winObj: {
         name: "",
+        type: "", //  edit
         render: {},
         vendorList: {
           DocumentWin: { modalHeight: 500, modalWidth: 600, title: "建档立卡" }
@@ -118,7 +148,7 @@ export default {
           {
             label: "乡镇",
             span: 5,
-            key: "country",
+            key: "town",
             type: "select",
             showKey: "name",
             ajaxKey: "name",
@@ -226,9 +256,22 @@ export default {
             label: "档案",
             icon: require("../../assets/images/u7.png"),
             props: { type: "success" },
+            // 有档案编辑，没档案弹框确认是否新增
             clickHandle: () => {
-              this.winObj.name = "DocumentWin"
-              this.$refs["editWin"].showModal = true
+              if (Object.keys(this.tableObj.curRow).length > 0) {
+                $$getArchiveDetail(this.tableObj.curRow.idCard).then(
+                  ({ data }) => {
+                    if (data) {
+                      this.setDocumentInfo(data)
+                      this.winObj.name = "DocumentWin"
+                      this.winObj.type = "edit"
+                      this.$refs["editWin"].showModal = true
+                    }
+                  }
+                )
+              } else {
+                __INFO__("请先选择一条数据")
+              }
             }
           }
         ],
@@ -254,26 +297,28 @@ export default {
             icon: require("../../assets/images/u10.png"),
             props: { type: "primary" },
             clickHandle: () => {
-              alert("右右右")
+              this.$refs["BaseLayout"].refresh()
             }
           }
         ]
       },
       tableObj: {
+        curRow: {},
         height: 200,
+        highlightRow: true,
         columns: [
-          {
-            title: "户号",
-            align: "center",
-            fixed: "left",
-            minWidth: 80,
-            render: tableRender("householderId")
-          },
           {
             title: "身份证",
             minWidth: 80,
+            fixed: "left",
             align: "center",
             render: tableRender("idCard")
+          },
+          {
+            title: "户号",
+            align: "center",
+            minWidth: 80,
+            render: tableRender("householderId")
           },
           {
             title: "姓名",
@@ -339,7 +384,7 @@ export default {
             title: "乡镇",
             align: "center",
             minWidth: 100,
-            render: tableRender("country")
+            render: tableRender("town")
           },
           {
             title: "操作",
@@ -359,7 +404,16 @@ export default {
                     },
                     on: {
                       click: () => {
-                        alert("点击编辑")
+                        $$getArchiveDetail(params.row.idCard).then(
+                          ({ data }) => {
+                            if (data) {
+                              this.setDocumentInfo(data)
+                              this.winObj.name = "DocumentWin"
+                              this.winObj.type = "edit"
+                              this.$refs["editWin"].showModal = true
+                            }
+                          }
+                        )
                       }
                     }
                   },
@@ -374,7 +428,8 @@ export default {
                     },
                     on: {
                       click: () => {
-                        alert("点击删除")
+                        this.confirmWinObj.type = "documentDel"
+                        this.$refs["confirmWin"].showModal = true
                       }
                     }
                   },
@@ -403,6 +458,16 @@ export default {
         this.winObj.render = this.winObj.vendorList[newVal]
       }
     },
+    "tableObj.data": {
+      handler() {
+        this.tableObj.curRow = {}
+      }
+    },
+    "confirmWinObj.type": {
+      handler(type) {
+        this.confirmWinObj.render = this.confirmWinObj.vendorList[type]
+      }
+    },
     dictObj: {
       immediate: true,
       handler(newVal) {
@@ -415,7 +480,34 @@ export default {
       }
     }
   },
-  methods: {}
+  methods: {
+    ...mapMutations(["setDocumentInfo"]),
+    // 选中表格一行
+    selectRow(cur) {
+      console.log(cur)
+      this.tableObj.curRow = cur
+    },
+    confirmHandle(compName) {
+      // 档案窗口
+      if (compName === "DocumentWin") {
+        let p = this.$refs["abc"].modelFmt
+        if (this.winObj.type === "edit") {
+          $$postArchiveUpdate(p).then(res => {
+            this.$refs["editWin"].showModal = false
+            this.$refs["BaseLayout"].refresh()
+          })
+        }
+      }
+    },
+    confirmWin() {
+      if (this.confirmWinObj.type === "documentDel") {
+        $$getDelDoc(this.tableObj.curRow.id).then(res => {
+          this.$refs["confirmWin"].showModal = false
+          this.$refs["BaseLayout"].refresh()
+        })
+      }
+    }
+  }
 }
 </script>
 

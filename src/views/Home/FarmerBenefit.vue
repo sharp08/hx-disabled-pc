@@ -1,26 +1,89 @@
 <template>
   <!-- 惠农补助 -->
   <div class="farmer-benefit-container">
-    <BaseLayout :searchObj="searchObj" :tableObj="tableObj" :toolBarObj="toolBarObj">
+    <BaseLayout
+      :searchObj="searchObj"
+      :tableObj="tableObj"
+      :toolBarObj="toolBarObj"
+      @selectRow="selectRow"
+      ref="BaseLayout"
+    >
       <template v-slot:tool-bar>
         <div class="total-container">
-          <div>合计金额：1元</div>
+          <div>合计金额：{{pageTotal}}元</div>
         </div>
       </template>
     </BaseLayout>
+    <!-- 单一补助项窗口 -->
     <BaseModal
-      :modalHeight="winObj.render.modalHeight"
-      :modalWidth="winObj.render.modalWidth"
+      :modalHeight="winObj.height"
+      :modalWidth="winObj.width"
       :title="winObj.render.title"
-      ref="editWin"
+      @confirm="confirmHandle('form')"
+      class="fm-win"
+      ref="win"
     >
-      <component :is="winObj.name"></component>
+      <div class="content">
+        <Form :label-width="100">
+          <FormItem label="补助项目">
+            <Select clearable transfer v-model="winObj.model.subsidyItem">
+              <Option
+                :key="idx"
+                :value="item.name"
+                v-for="(item,idx) in dictObj['DIC_1011']"
+              >{{item.name}}</Option>
+            </Select>
+          </FormItem>
+          <FormItem label="补助标准">
+            <Input placeholder="请输入" v-model="winObj.model.subsidyStandard"></Input>
+          </FormItem>
+          <FormItem label="享受年度">
+            <DatePicker
+              :editable="false"
+              placeholder="请选择"
+              style="width:100%"
+              transfer
+              type="year"
+              v-model="winObj.model.subsidyYear"
+            ></DatePicker>
+          </FormItem>
+          <FormItem label="发放时间">
+            <DatePicker
+              :editable="false"
+              placeholder="请选择"
+              style="width:100%"
+              transfer
+              type="date"
+              v-model="winObj.model.subsidyTime"
+            ></DatePicker>
+          </FormItem>
+          <FormItem label="一折通姓名">
+            <Input placeholder="请输入" v-model="winObj.model.cardName"></Input>
+          </FormItem>
+          <FormItem label="一折通账号">
+            <Input placeholder="请输入" v-model="winObj.model.cardNumber"></Input>
+          </FormItem>
+        </Form>
+      </div>
     </BaseModal>
+
+    <!-- 操作确认 -->
+    <BaseModal
+      :content="confirmWinObj.render.content"
+      :title="confirmWinObj.render.title"
+      @confirm="confirmWin"
+      ref="confirmWin"
+    ></BaseModal>
   </div>
 </template>
 
 <script>
-import { $$postAllowanceList } from "@js/apis.js"
+import {
+  $$postAllowanceList, // 查询列表
+  $$getFarmerWinDetail, // 查询
+  $$postFarmerWinUpdate, //  编辑
+  $$getDelAllowance //  删除
+} from "@js/apis.js"
 import { mapGetters } from "vuex"
 import DocumentWin from "./DocumentWin"
 export default {
@@ -31,11 +94,33 @@ export default {
   props: {},
   data() {
     return {
-      winObj: {
-        name: "",
+      confirmWinObj: {
+        type: "",
         render: {},
         vendorList: {
-          DocumentWin: { modalHeight: 500, modalWidth: 600, title: "建档立卡" }
+          allowanceDel: {
+            title: "操作确认",
+            content: "是否要删除当前补助项？"
+          }
+        }
+      },
+      winObj: {
+        type: "",
+        height: 500,
+        width: 500,
+        model: {
+          subsidyItem: "",
+          subsidyStandard: "",
+          subsidyTime: "",
+          subsidyYear: "",
+          cardName: "",
+          cardNumber: ""
+        },
+        render: {},
+        vendorList: {
+          edit: {
+            title: "编辑补助项目"
+          }
         }
       },
       searchObj: {
@@ -75,7 +160,7 @@ export default {
           {
             label: "身份证",
             span: 5,
-            key: "icCard",
+            key: "idCard",
             type: "input",
             props: { placeholder: "请输入" }
           },
@@ -204,25 +289,21 @@ export default {
             icon: require("../../assets/images/u10.png"),
             props: { type: "primary" },
             clickHandle: () => {
-              alert("右右右")
+              this.$refs["BaseLayout"].refresh()
             }
           }
         ]
       },
       tableObj: {
+        curRow: {},
         height: 200,
+        highlightRow: true,
         columns: [
-          {
-            title: "户号",
-            align: "center",
-            fixed: "left",
-            minWidth: 80,
-            render: tableRender("householderId")
-          },
           {
             title: "身份证",
             minWidth: 80,
             align: "center",
+            fixed: "left",
             render: tableRender("idCard")
           },
           {
@@ -309,7 +390,12 @@ export default {
                     },
                     on: {
                       click: () => {
-                        alert("点击编辑")
+                        $$getFarmerWinDetail(params.row.id).then(({ data }) => {
+                          this.winObj.model = data
+                          this.winObj.model.subsidyYear = data.subsidyYear.toString()
+                          this.winObj.type = "edit"
+                          this.$refs["win"].showModal = true
+                        })
                       }
                     }
                   },
@@ -324,7 +410,8 @@ export default {
                     },
                     on: {
                       click: () => {
-                        alert("点击删除")
+                        this.confirmWinObj.type = "allowanceDel"
+                        this.$refs["confirmWin"].showModal = true
                       }
                     }
                   },
@@ -345,12 +432,27 @@ export default {
     this.tableObj.height = a - b - c
   },
   computed: {
-    ...mapGetters(["dictObj"])
+    ...mapGetters(["dictObj"]),
+    pageTotal() {
+      return this.tableObj.data.reduce((acc, cur) => {
+        return acc + cur.subsidyStandard
+      }, 0)
+    }
   },
   watch: {
-    "winObj.name": {
+    "winObj.type": {
       handler(newVal) {
         this.winObj.render = this.winObj.vendorList[newVal]
+      }
+    },
+    "tableObj.data": {
+      handler() {
+        this.tableObj.curRow = {}
+      }
+    },
+    "confirmWinObj.type": {
+      handler(type) {
+        this.confirmWinObj.render = this.confirmWinObj.vendorList[type]
       }
     },
     dictObj: {
@@ -362,7 +464,37 @@ export default {
       }
     }
   },
-  methods: {}
+  methods: {
+    // 选中表格一行
+    selectRow(cur) {
+      console.log(cur)
+      this.tableObj.curRow = cur
+    },
+    confirmHandle(compName) {
+      // 编辑窗口
+      if (compName === "form") {
+        let p = this.winObj.model
+        p.subsidyYear = $K.fmtDate(p.subsidyYear, "yyyy")
+        p.subsidyTime = $K.fmtDate(p.subsidyTime, "yyyy-MM-dd")
+        p.idCard = this.tableObj.curRow.idCard
+        p.name = this.tableObj.curRow.name
+        if (this.winObj.type === "edit") {
+          $$postFarmerWinUpdate(p).then(res => {
+            this.$refs["win"].showModal = false
+            this.$refs["BaseLayout"].refresh()
+          })
+        }
+      }
+    },
+    confirmWin() {
+      if (this.confirmWinObj.type === "allowanceDel") {
+        $$getDelAllowance(this.tableObj.curRow.id).then(res => {
+          this.$refs["confirmWin"].showModal = false
+          this.$refs["BaseLayout"].refresh()
+        })
+      }
+    }
+  }
 }
 </script>
 
@@ -374,6 +506,11 @@ export default {
   .total-container {
     display: flex;
     align-items: center;
+  }
+}
+.fm-win {
+  .content {
+    padding: 10px;
   }
 }
 </style>

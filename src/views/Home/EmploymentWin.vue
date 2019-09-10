@@ -1,5 +1,5 @@
 <template>
-  <!-- 就业培训 -->
+  <!-- 就业培训窗口 -->
   <div class="employment-win">
     <div class="top">
       <div class="left">

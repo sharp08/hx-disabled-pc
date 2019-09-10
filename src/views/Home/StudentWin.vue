@@ -172,7 +172,6 @@ export default {
                   },
                   on: {
                     click: () => {
-                      this.curRow = params.row
                       this.confirmWinObj.type = "eduDel"
                       this.$refs["confirmWin"].showModal = true
                     }
@@ -254,7 +253,7 @@ export default {
     confirmHandle(type) {
       // 表单窗口
       if (type === "form") {
-        let p = this.winObj.model        
+        let p = this.winObj.model
         p.idCard = this.curRowObj.idCard
         p.name = this.curRowObj.name
         if (this.winObj.type === "add") {

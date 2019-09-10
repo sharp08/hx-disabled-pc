@@ -1,24 +1,71 @@
 <template>
+  <!-- 就业培训 -->
   <div class="disabled-student-container">
-    <BaseLayout :searchObj="searchObj" :tableObj="tableObj" :toolBarObj="toolBarObj">
+    <BaseLayout
+      :searchObj="searchObj"
+      :tableObj="tableObj"
+      :toolBarObj="toolBarObj"
+      @selectRow="selectRow"
+      ref="BaseLayout"
+    >
       <template v-slot:tool-bar>
         <!-- 占位 -->
         <div></div>
       </template>
     </BaseLayout>
+    <!-- 单一培训窗口 -->
     <BaseModal
-      :modalHeight="winObj.render.modalHeight"
-      :modalWidth="winObj.render.modalWidth"
+      :modalHeight="winObj.height"
+      :modalWidth="winObj.width"
       :title="winObj.render.title"
-      ref="editWin"
+      @confirm="confirmHandle('form')"
+      class="employ-win"
+      ref="win"
     >
-      <component :is="winObj.name"></component>
+      <div class="content">
+        <Form :label-width="100" :model="winObj.model">
+          <FormItem label="培训时间">
+            <DatePicker
+              :editable="false"
+              placeholder="请选择"
+              style="width:100%"
+              transfer
+              type="date"
+              v-model="winObj.model.trainTime"
+            ></DatePicker>
+          </FormItem>
+          <FormItem label="培训类型">
+            <Select clearable transfer v-model="winObj.model.trainType">
+              <Option
+                :key="idx"
+                :value="item.name"
+                v-for="(item,idx) in dictObj['DIC_1010']"
+              >{{item.name}}</Option>
+            </Select>
+          </FormItem>
+          <FormItem label="培训内容">
+            <Input type="textarea" v-model="winObj.model.trainContent"></Input>
+          </FormItem>
+        </Form>
+      </div>
     </BaseModal>
+    <!-- 确认窗口 -->
+    <BaseModal
+      :content="confirmWinObj.render.content"
+      :title="confirmWinObj.render.title"
+      @confirm="confirmHandle('confirm')"
+      ref="confirmWin"
+    ></BaseModal>
   </div>
 </template>
 
 <script>
-import { $$postTrainList } from "@js/apis.js"
+import {
+  $$postTrainList, //列表
+  $$getTrainDetail, //  查询单一培训详情
+  $$postUpdateTrain, //  修改就业
+  $$getDelTrain //  删除就业
+} from "@js/apis.js"
 import { mapGetters } from "vuex"
 import DocumentWin from "./DocumentWin"
 export default {
@@ -29,11 +76,30 @@ export default {
   props: {},
   data() {
     return {
-      winObj: {
-        name: "",
+      confirmWinObj: {
+        type: "",
         render: {},
         vendorList: {
-          DocumentWin: { modalHeight: 500, modalWidth: 600, title: "建档立卡" }
+          trainDel: {
+            title: "操作确认",
+            content: "是否要删除该项数据？"
+          }
+        }
+      },
+      winObj: {
+        type: "",
+        height: 300,
+        width: 500,
+        model: {
+          trainTime: "",
+          trainType: "",
+          trainContent: ""
+        },
+        render: {},
+        vendorList: {
+          edit: {
+            title: "编辑就业培训"
+          }
         }
       },
       searchObj: {
@@ -126,7 +192,7 @@ export default {
             key: "town",
             type: "select",
             showKey: "name",
-            ajaxKey: "id",
+            ajaxKey: "name",
             props: {
               placeholder: "请选择",
               list: [
@@ -217,32 +283,35 @@ export default {
             icon: require("../../assets/images/u10.png"),
             props: { type: "primary" },
             clickHandle: () => {
-              alert("右右右")
+              this.$refs["BaseLayout"].refresh()
             }
           }
         ]
       },
       tableObj: {
+        curRow: {},
         height: 200,
+        highlightRow: true,
         columns: [
+          // {
+          //   title: "序号",
+          //   type: "index",
+          //   fixed: "left",
+          //   align: "center",
+          //   minWidth: 60
+          // },
           {
-            title: "序号",
-            type: "index",
+            title: "身份证",
+            minWidth: 80,
             fixed: "left",
             align: "center",
-            minWidth: 60
+            render: tableRender("idCard")
           },
           {
             title: "姓名",
             align: "center",
             minWidth: 80,
             render: tableRender("name")
-          },
-          {
-            title: "身份证",
-            minWidth: 80,
-            align: "center",
-            render: tableRender("idCard")
           },
           {
             title: "培训类别",
@@ -316,7 +385,11 @@ export default {
                     },
                     on: {
                       click: () => {
-                        alert("点击编辑")
+                        $$getTrainDetail(params.row.id).then(({ data }) => {
+                          this.winObj.model = data
+                          this.winObj.type = "edit"
+                          this.$refs["win"].showModal = true
+                        })
                       }
                     }
                   },
@@ -331,7 +404,8 @@ export default {
                     },
                     on: {
                       click: () => {
-                        alert("点击删除")
+                        this.confirmWinObj.type = "trainDel"
+                        this.$refs["confirmWin"].showModal = true
                       }
                     }
                   },
@@ -355,9 +429,14 @@ export default {
     ...mapGetters(["dictObj"])
   },
   watch: {
-    "winObj.name": {
+    "winObj.type": {
       handler(newVal) {
         this.winObj.render = this.winObj.vendorList[newVal]
+      }
+    },
+    "confirmWinObj.type": {
+      handler(newVal) {
+        this.confirmWinObj.render = this.confirmWinObj.vendorList[newVal]
       }
     },
     dictObj: {
@@ -366,10 +445,40 @@ export default {
         this.searchObj.list[2].props.list = newVal["DIC_1000"]
         this.searchObj.list[3].props.list = newVal["DIC_1001"]
         this.searchObj.list[4].props.list = newVal["DIC_1008"]
+        this.searchObj.list[5].props.list = newVal["DIC_1010"]
       }
     }
   },
-  methods: {}
+  methods: {
+    // 选中表格一行
+    selectRow(cur) {
+      console.log(cur)
+      this.tableObj.curRow = cur
+    },
+    // 窗口确认
+    confirmHandle(type) {
+      // 表单窗口
+      if (type === "form") {
+        let p = this.winObj.model
+        p.trainTime = $K.fmtDate(p.trainTime)
+        p.idCard = this.tableObj.curRow.idCard
+        p.name = this.tableObj.curRow.name
+        if (this.winObj.type === "edit") {
+          $$postUpdateTrain(p).then(res => {
+            this.$refs["win"].showModal = false
+            this.$refs["BaseLayout"].refresh()
+          })
+        }
+      }
+      // 二次确认窗口
+      else if (type === "confirm") {
+        $$getDelTrain(this.tableObj.curRow.id).then(res => {
+          this.$refs["confirmWin"].showModal = false
+          this.$refs["BaseLayout"].refresh()
+        })
+      }
+    }
+  }
 }
 </script>
 
@@ -381,6 +490,11 @@ export default {
   .total-container {
     display: flex;
     align-items: center;
+  }
+}
+.employ-win {
+  .content {
+    padding: 10px;
   }
 }
 </style>

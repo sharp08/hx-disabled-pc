@@ -14,7 +14,7 @@
         <FormItem label="户号">
           <Input placeholder="请输入" v-model="model.householderId"></Input>
         </FormItem>
-        <FormItem label="身份证">
+        <FormItem label="户主身份证">
           <Input placeholder="请输入" v-model="model.householderIdCard"></Input>
         </FormItem>
         <FormItem label="户主姓名">

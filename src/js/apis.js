@@ -23,7 +23,7 @@ export const $$postInfoList = params => $http.post(`dpInfo/page/${params.offset}
 export const $$getInfoDetail = idCard => $http.get(`dpInfo/query/${idCard}`)
 export const $$postAddInfo = params => $http.post(`dpInfo/add`, params)
 export const $$postUpdateInfo = params => $http.post(`dpInfo/update`, params)
-export const $$getDelInfo = idCard => $http.get(`/dpInfo/delete/${idCard}`)
+export const $$getDelInfo = idCard => $http.get(`dpInfo/delete/${idCard}`)
 
 
 // 建档立卡
@@ -31,7 +31,7 @@ export const $$postArchiveList = params => $http.post(`dpArchive/page/${params.o
 export const $$getArchiveDetail = idCard => $http.get(`dpArchive/query/${idCard}`)
 export const $$postArchiveAdd = params => $http.post(`dpArchive/add`, params)
 export const $$postArchiveUpdate = params => $http.post(`dpArchive/update`, params)
-
+export const $$getDelDoc = id => $http.get(`dpArchive/delete/${id}`)
 
 // 惠农补助
 export const $$postAllowanceList = params => $http.post(`dpAllowance/page/${params.offset}/${params.limit}`, params.query)
@@ -40,6 +40,7 @@ export const $$postFarmerWinAdd = params => $http.post(`dpAllowance/add`, params
 export const $$postFarmerWinUpdate = params => $http.post(`dpAllowance/update`, params)
 export const $$getFarmerWinDel = id => $http.get(`dpAllowance/delete/${id}`)
 export const $$getFarmerWinDetail = id => $http.get(`dpAllowance/query/${id}`)
+export const $$getDelAllowance = id => $http.get(`dpAllowance/delete/${id}`)
 
 // 残疾学生
 export const $$postStudentList = params => $http.post(`dpEducation/page/${params.offset}/${params.limit}`, params.query)

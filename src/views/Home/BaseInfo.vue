@@ -13,11 +13,12 @@
       :modalWidth="winObj.render.modalWidth"
       :showConfirm="winObj.name==='InfoWin'||winObj.name==='DocumentWin'"
       :title="winObj.render.title"
-      @confirm="confirm(winObj.name)"
+      @confirm="confirmHandle(winObj.name)"
       ref="editWin"
     >
       <component :curRowObj="tableObj.curRow" :is="winObj.name" :type="winObj.type" ref="abc"></component>
     </BaseModal>
+    <!-- 操作确认 -->
     <BaseModal
       :content="confirmWinObj.render.content"
       :title="confirmWinObj.render.title"
@@ -585,7 +586,7 @@ export default {
       console.log(cur)
       this.tableObj.curRow = cur
     },
-    confirm(compName) {
+    confirmHandle(compName) {
       // 基本信息窗口
       if (compName === "InfoWin") {
         let pass = this.$refs["abc"].valid()
