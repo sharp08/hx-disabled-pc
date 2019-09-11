@@ -74,12 +74,14 @@
       @confirm="confirmWin"
       ref="confirmWin"
     ></BaseModal>
+    <input @change="upload" hidden name="myfile" ref="file" type="file" />
   </div>
 </template>
 
 <script>
 import {
   $$postAllowanceList, // 查询列表
+  $$postImportAllowanceList, //  导入
   $$getFarmerWinDetail, // 查询
   $$postFarmerWinUpdate, //  编辑
   $$getDelAllowance //  删除
@@ -273,7 +275,7 @@ export default {
             icon: require("../../assets/images/u9.png"),
             props: { type: "success" },
             clickHandle: () => {
-              alert("右右右")
+              this.$refs["file"].click()
             }
           },
           {
@@ -465,6 +467,12 @@ export default {
     }
   },
   methods: {
+    upload(e) {
+      const file = e.target.files[0]
+      let formData = new FormData()
+      formData.append("file", file)
+      $$postImportAllowanceList(formData)
+    },
     // 选中表格一行
     selectRow(cur) {
       console.log(cur)

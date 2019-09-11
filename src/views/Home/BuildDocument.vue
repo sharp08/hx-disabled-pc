@@ -24,12 +24,14 @@
       @confirm="confirmWin"
       ref="confirmWin"
     ></BaseModal>
+    <input @change="upload" hidden name="myfile" ref="file" type="file" />
   </div>
 </template>
 
 <script>
 import {
   $$postArchiveList, //  查询档案列表
+  $$postImportArchiveList, //  导入
   $$getArchiveDetail, //  查询档案详情
   $$postArchiveUpdate, //  修改档案
   $$getDelDoc //  删除档案
@@ -281,7 +283,7 @@ export default {
             icon: require("../../assets/images/u9.png"),
             props: { type: "success" },
             clickHandle: () => {
-              alert("右右右")
+              this.$refs["file"].click()
             }
           },
           {
@@ -482,6 +484,12 @@ export default {
   },
   methods: {
     ...mapMutations(["setDocumentInfo"]),
+    upload(e) {
+      const file = e.target.files[0]
+      let formData = new FormData()
+      formData.append("file", file)
+      $$postImportArchiveList(formData)
+    },
     // 选中表格一行
     selectRow(cur) {
       console.log(cur)

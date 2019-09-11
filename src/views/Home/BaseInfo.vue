@@ -25,12 +25,15 @@
       @confirm="confirmWin"
       ref="confirmWin"
     ></BaseModal>
+    <input @change="upload" hidden name="myfile" ref="file" type="file" />
   </div>
 </template>
 
 <script>
 import {
   $$postInfoList, //  查询基本信息列表
+  $$postExportInfoList, //  批量导出
+  $$postImportInfoList, //  批量导入
   $$getInfoDetail, //  获取基本信息详情
   $$postAddInfo, //  新增基本信息
   $$postUpdateInfo, //  修改基本信息
@@ -45,6 +48,7 @@ import DocumentWin from "./DocumentWin"
 import EmploymentWin from "./EmploymentWin"
 import StudentWin from "./StudentWin"
 import FarmerWin from "./FarmerWin"
+import RehabilitationWin from "./RehabilitationWin"
 export default {
   name: "BaseInfo",
   components: {
@@ -52,7 +56,8 @@ export default {
     DocumentWin,
     EmploymentWin,
     StudentWin,
-    FarmerWin
+    FarmerWin,
+    RehabilitationWin
   },
   props: {},
   data() {
@@ -100,6 +105,11 @@ export default {
             modalHeight: 500,
             modalWidth: 800,
             title: "惠农补助"
+          },
+          RehabilitationWin: {
+            modalHeight: 500,
+            modalWidth: 800,
+            title: "康复需求"
           }
         }
       },
@@ -107,8 +117,9 @@ export default {
         ajax: $$postInfoList,
         paramsFmt: p => {
           let r = $K.deepClone(p)
-          r.query.bStartTime = p.query.birthday[0] || ""
-          r.query.bEndTime = p.query.birthday[1] || ""
+          r.query.bStartTime =
+            $K.fmtDate(p.query.birthday[0], "yyyy-MM-dd") || ""
+          r.query.bEndTime = $K.fmtDate(p.query.birthday[1], "yyyy-MM-dd") || ""
           delete r.query.birthday
           return r
         },
@@ -317,6 +328,19 @@ export default {
                 __INFO__("请先选择一条数据")
               }
             }
+          },
+          {
+            label: "康复",
+            icon: require("../../assets/images/u6.png"),
+            props: { type: "success" },
+            clickHandle: () => {
+              if (Object.keys(this.tableObj.curRow).length > 0) {
+                this.winObj.name = "RehabilitationWin"
+                this.$refs["editWin"].showModal = true
+              } else {
+                __INFO__("请先选择一条数据")
+              }
+            }
           }
         ],
         rightList: [
@@ -335,7 +359,7 @@ export default {
             icon: require("../../assets/images/u9.png"),
             props: { type: "success" },
             clickHandle: () => {
-              alert("右右右")
+              this.$refs["file"].click()
             }
           },
           {
@@ -343,7 +367,10 @@ export default {
             icon: require("../../assets/images/u8.png"),
             props: { type: "primary" },
             clickHandle: () => {
-              alert("右右右")
+              let p = this.searchObj.paramsFmt(
+                this.$refs["BaseLayout"].curReqParams
+              )
+              $$postExportInfoList(p)
             }
           },
           {
@@ -581,6 +608,12 @@ export default {
   },
   methods: {
     ...mapMutations(["setBaseInfo", "setDocumentInfo"]),
+    upload(e) {
+      const file = e.target.files[0]
+      let formData = new FormData()
+      formData.append("file", file)
+      $$postImportInfoList(formData)
+    },
     // 选中表格一行
     selectRow(cur) {
       console.log(cur)
