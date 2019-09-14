@@ -67,6 +67,7 @@
 import {
   $$postStudentList, //列表
   $$postImportEducationList, //导入
+  $$postExportEducationList, //导出
   $$getStudentWinDetail, //详情
   $$postStudentWinUpdate, //修改
   $$getStudentWinDel //  删除
@@ -281,7 +282,10 @@ export default {
             icon: require("../../assets/images/u8.png"),
             props: { type: "primary" },
             clickHandle: () => {
-              alert("右右右")
+              let p = this.$refs["BaseLayout"].curReqParams
+              $$postExportEducationList(p).then(res => {
+                $K.download(res)
+              })
             }
           },
           {

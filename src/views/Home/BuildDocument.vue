@@ -32,6 +32,7 @@
 import {
   $$postArchiveList, //  查询档案列表
   $$postImportArchiveList, //  导入
+  $$postExportArchiveList, //  导出
   $$getArchiveDetail, //  查询档案详情
   $$postArchiveUpdate, //  修改档案
   $$getDelDoc //  删除档案
@@ -291,7 +292,10 @@ export default {
             icon: require("../../assets/images/u8.png"),
             props: { type: "primary" },
             clickHandle: () => {
-              alert("右右右")
+              let p = this.$refs["BaseLayout"].curReqParams
+              $$postExportArchiveList(p).then(res => {
+                $K.download(res)
+              })
             }
           },
           {

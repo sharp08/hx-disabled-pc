@@ -70,6 +70,7 @@
 import {
   $$postCureList, //  查询列表
   $$postImportCureList, //  导入
+  $$postExportCureList, //  导出
   $$getCureWinDetail, // 查询
   $$postCureWinUpdate, //  编辑
   $$getDelCure //  删除
@@ -291,7 +292,10 @@ export default {
             icon: require("../../assets/images/u8.png"),
             props: { type: "primary" },
             clickHandle: () => {
-              alert("右右右")
+              let p = this.$refs["BaseLayout"].curReqParams
+              $$postExportCureList(p).then(res => {
+                $K.download(res)
+              })
             }
           },
           {

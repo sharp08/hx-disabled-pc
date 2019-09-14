@@ -365,6 +365,16 @@ const random = (min = 0, max = 10) => {
   return rtn
 }
 
+// blob 下载
+const download = (blob) => {
+  let o = window.URL.createObjectURL(blob)
+  let a = document.createElement("a")
+  a.href = o
+  a.setAttribute("download", name)
+  a.click()
+  a = null
+}
+
 export {
   getType,// 查看类型
   fmtDeepClone, // 深拷贝并格式化
@@ -383,5 +393,6 @@ export {
   UUID,//  生成唯一ID
   loop,// setTimeout 模拟 setInterval
   getQueryString,// 获取 url 参数
-  random//  生成区间随机数
+  random,//  生成区间随机数
+  download// 下载
 }

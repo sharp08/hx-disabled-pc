@@ -20,16 +20,16 @@ let arr = [
 export const $$queryDicByTypes = params => $http.get(`dictionaryApi/queryDicByTypes?${arr.join("&")}`, params)
 // 基本信息
 export const $$postInfoList = params => $http.post(`dpInfo/page/${params.offset}/${params.limit}`, params.query)
-export const $$postExportInfoList = params => $http.post(`dpInfo/page/0/10?export=1`, params.query)
+export const $$postExportInfoList = params => $http.post(`dpInfo/export`, params.query, { responseType: "blob" })
 export const $$postImportInfoList = params => $http.post(`dpInfo/importDpInfo`, params)
 export const $$getInfoDetail = idCard => $http.get(`dpInfo/query/${idCard}`)
 export const $$postAddInfo = params => $http.post(`dpInfo/add`, params)
 export const $$postUpdateInfo = params => $http.post(`dpInfo/update`, params)
 export const $$getDelInfo = idCard => $http.get(`dpInfo/delete/${idCard}`)
 
-
 // 建档立卡
 export const $$postArchiveList = params => $http.post(`dpArchive/page/${params.offset}/${params.limit}`, params.query)
+export const $$postExportArchiveList = params => $http.post(`dpArchive/export`, params.query, { responseType: "blob" })
 export const $$postImportArchiveList = params => $http.post(`dpArchive/importDpArchive`, params)
 export const $$getArchiveDetail = idCard => $http.get(`dpArchive/query/${idCard}`)
 export const $$postArchiveAdd = params => $http.post(`dpArchive/add`, params)
@@ -38,6 +38,7 @@ export const $$getDelDoc = id => $http.get(`dpArchive/delete/${id}`)
 
 // 惠农补助
 export const $$postAllowanceList = params => $http.post(`dpAllowance/page/${params.offset}/${params.limit}`, params.query)
+export const $$postExportAllowanceList = params => $http.post(`dpAllowance/export`, params.query, { responseType: "blob" })
 export const $$getFarmerWinList = params => $http.get(`dpAllowance/queryPageByIdCard`, params)
 export const $$postImportAllowanceList = params => $http.post(`dpAllowance/importDpAllowance`, params)
 export const $$postFarmerWinAdd = params => $http.post(`dpAllowance/add`, params)
@@ -49,6 +50,7 @@ export const $$getDelAllowance = id => $http.get(`dpAllowance/delete/${id}`)
 // 残疾学生
 export const $$postStudentList = params => $http.post(`dpEducation/page/${params.offset}/${params.limit}`, params.query)
 export const $$getStudentWinList = params => $http.get(`dpEducation/queryPageByIdCard`, params)
+export const $$postExportEducationList = params => $http.post(`dpEducation/export`, params.query, { responseType: "blob" })
 export const $$postImportEducationList = params => $http.post(`dpEducation/importDpEducation`, params)
 export const $$postStudentWinAdd = params => $http.post(`dpEducation/add`, params)
 export const $$postStudentWinUpdate = params => $http.post(`dpEducation/update`, params)
@@ -56,18 +58,20 @@ export const $$getStudentWinDel = id => $http.get(`dpEducation/delete/${id}`)
 export const $$getStudentWinDetail = id => $http.get(`dpEducation/query/${id}`)
 
 // 就业培训
-export const $$postTrainList = params => $http.post(`DpTrain/page/${params.offset}/${params.limit}`, params.query)
-export const $$getPageByIdCard = params => $http.get(`DpTrain/queryPageByIdCard`, params)
+export const $$postTrainList = params => $http.post(`dpTrain/page/${params.offset}/${params.limit}`, params.query)
+export const $$getPageByIdCard = params => $http.get(`dpTrain/queryPageByIdCard`, params)
+export const $$postExportTrainList = params => $http.post(`dpTrain/export`, params.query, { responseType: "blob" })
 export const $$postImportTrainList = params => $http.post(`dpTrain/importDpTrain`, params)
-export const $$getTrainDetail = id => $http.get(`DpTrain/query/${id}`)
-export const $$postAddTrain = params => $http.post(`DpTrain/add`, params)
-export const $$postUpdateTrain = params => $http.post(`DpTrain/update`, params)
-export const $$getDelTrain = id => $http.get(`DpTrain/delete/${id}`)
+export const $$getTrainDetail = id => $http.get(`dpTrain/query/${id}`)
+export const $$postAddTrain = params => $http.post(`dpTrain/add`, params)
+export const $$postUpdateTrain = params => $http.post(`dpTrain/update`, params)
+export const $$getDelTrain = id => $http.get(`dpTrain/delete/${id}`)
 
 
 // 康复需求
 export const $$postCureList = params => $http.post(`dpCure/page/${params.offset}/${params.limit}`, params.query)
 export const $$getCureWinList = params => $http.get(`dpCure/queryPageByIdCard`, params)
+export const $$postExportCureList = params => $http.post(`dpCure/export`, params.query, { responseType: "blob" })
 export const $$postImportCureList = params => $http.post(`dpCure/importDpCure`, params)
 export const $$postCureWinAdd = params => $http.post(`dpCure/add`, params)
 export const $$postCureWinUpdate = params => $http.post(`dpCure/update`, params)

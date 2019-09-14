@@ -82,6 +82,7 @@
 import {
   $$postAllowanceList, // 查询列表
   $$postImportAllowanceList, //  导入
+  $$postExportAllowanceList, //  导出
   $$getFarmerWinDetail, // 查询
   $$postFarmerWinUpdate, //  编辑
   $$getDelAllowance //  删除
@@ -283,7 +284,12 @@ export default {
             icon: require("../../assets/images/u8.png"),
             props: { type: "primary" },
             clickHandle: () => {
-              alert("右右右")
+              let p = this.searchObj.paramsFmt(
+                this.$refs["BaseLayout"].curReqParams
+              )
+              $$postExportAllowanceList(p).then(res => {
+                $K.download(res)
+              })
             }
           },
           {

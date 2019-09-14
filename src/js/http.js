@@ -18,7 +18,7 @@ import router from "@/router"
 
 // 实例化默认设置
 let axiosInstance = axios.create({
-  timeout: 15000,
+  timeout: 60000,
   // baseURL: '/app/',
   headers: {
     "Content-Type": "application/json;charset=utf-8"
@@ -49,7 +49,12 @@ const common = (o, loading) => {
     .then(res => {
       if (res.status === 200 && res.data.success === true) {
         return Promise.resolve(res.data)
-      } else {
+      }
+      // 下载
+      else if (res.headers["content-disposition"].includes("attachment")) {
+        return Promise.resolve(res.data)
+      }
+      else {
         res.data && __ERROR__(res.data.message)
         return Promise.reject(res)
       }

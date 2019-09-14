@@ -370,7 +370,9 @@ export default {
               let p = this.searchObj.paramsFmt(
                 this.$refs["BaseLayout"].curReqParams
               )
-              $$postExportInfoList(p)
+              $$postExportInfoList(p).then(res => {
+                $K.download(res)
+              })
             }
           },
           {

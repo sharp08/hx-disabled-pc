@@ -64,6 +64,7 @@
 import {
   $$postTrainList, //列表
   $$postImportTrainList, //  导入
+  $$postExportTrainList, //  导出
   $$getTrainDetail, //  查询单一培训详情
   $$postUpdateTrain, //  修改就业
   $$getDelTrain //  删除就业
@@ -277,7 +278,12 @@ export default {
             icon: require("../../assets/images/u8.png"),
             props: { type: "primary" },
             clickHandle: () => {
-              alert("右右右")
+              let p = this.searchObj.paramsFmt(
+                this.$refs["BaseLayout"].curReqParams
+              )
+              $$postExportTrainList(p).then(res => {
+                $K.download(res)
+              })
             }
           },
           {
